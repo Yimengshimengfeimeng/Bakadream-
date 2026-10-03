@@ -1,0 +1,9 @@
+# 你机器上这些包已经装好了，本文件是"这份代码依赖什么"的声明，
+# 换一台机器时执行：python -m pip install -r requirements.txt
+
+# --- 阶段0：地基 ---
+openai>=2.54.0
+pydantic>=2.13.0
+pydantic-settings>=2.15.0
+python-dotenv>=1.2.0
+rich
