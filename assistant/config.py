@@ -13,12 +13,11 @@ class Settings(BaseSettings):
         extra = "ignore",
         case_sensitive = False
     )
-    llm_base_url: str
+    llm_base_url: str = ""
     llm_api_key: str = ""
     llm_model: str = ""
     llm_temperature: float = 0.0
     llm_timeout: float = 60.0
-    llm_max_retries: int = 2
     #应用
     app_name: str = "Bakadream的小助手"
     data_dir: Path = DEFAULT_DATA_DIR
@@ -35,11 +34,37 @@ class Settings(BaseSettings):
         if len(key)<= 10:
             return key[0]+"*"*(len(key)-1)
         return f"{key[:6]}...{key[-4:]}"
-    def require_api_key(self) -> str:
+    @property
+    def masked_base_url(self) -> str:
+        base_url = self.llm_base_url.strip()
+        if not base_url:
+            return "未设置供应商网址"
+        return base_url[8:-3]
+    def require_llm_config(self) -> str:
         key = self.llm_api_key.strip()
-        if not key:
+        base_url = self.llm_base_url.strip()
+        model = self.llm_model.strip()
+        if not key :
             raise RuntimeError(
                 "LLM_API_KEY 未配置。\n"
+                f"  1) 复制模板：Copy-Item .env.example .env   （在 {PROJECT_ROOT}）\n"
+                "  2) 打开 .env 填入 LLM_API_KEY / LLM_BASE_URL / LLM_MODEL"
+            )
+        if not base_url :
+            raise RuntimeError(
+                "LLM_BASE_URL 未配置。\n"
+                f"  1) 复制模板：Copy-Item .env.example .env   （在 {PROJECT_ROOT}）\n"
+                "  2) 打开 .env 填入 LLM_API_KEY / LLM_BASE_URL / LLM_MODEL"
+            )
+        if base_url[:8] != "https://":
+            raise RuntimeError(
+                "LLM_BASE_URL 格式错误。\n"
+                f"  1) 复制模板：Copy-Item .env.example .env   （在 {PROJECT_ROOT}）\n"
+                "  2) 打开 .env 填入 LLM_API_KEY / LLM_BASE_URL / LLM_MODEL"
+            )
+        if not model : 
+            raise RuntimeError(
+                "LLM_MODEL 未配置。\n"
                 f"  1) 复制模板：Copy-Item .env.example .env   （在 {PROJECT_ROOT}）\n"
                 "  2) 打开 .env 填入 LLM_API_KEY / LLM_BASE_URL / LLM_MODEL"
             )
