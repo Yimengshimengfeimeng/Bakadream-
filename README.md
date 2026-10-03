@@ -32,7 +32,7 @@
 
 ```powershell
 python -m venv .venv
-\.venv\Scripts\Activate.ps1
+.\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
@@ -73,7 +73,7 @@ cp .env.example .env
 打开项目根目录下的 `.env`，填写模型服务配置：
 
 ```dotenv
-# OpenAI 兼容模型服务地址，必须使用 https://
+# OpenAI 兼容模型服务地址，必须使用 https://或http://
 # 通常以 /v1 结尾，且不要带末尾斜杠
 LLM_BASE_URL=https://your-gateway.example/v1
 
@@ -88,7 +88,7 @@ LLM_MODEL=your-model-name
 
 | 变量 | 说明 |
 | --- | --- |
-| `LLM_BASE_URL` | OpenAI 兼容接口的 Base URL，必须以 `https://` 开头；通常以 `/v1` 结尾 |
+| `LLM_BASE_URL` | OpenAI 兼容接口的 Base URL，必须以 `https://`或`http://` 开头；通常以 `/v1` 结尾 |
 | `LLM_API_KEY` | 模型服务 API Key，请勿提交到 Git |
 | `LLM_MODEL` | 模型服务支持的模型名称 |
 
@@ -147,13 +147,12 @@ Copy-Item .env.example .env
 
 ### 启动时报 `LLM_BASE_URL 格式错误`
 
-`LLM_BASE_URL` 必须以 `https://` 开头，例如：
+`LLM_BASE_URL` 必须以 `https://`或`http://` 开头，例如：
 
 ```dotenv
 LLM_BASE_URL=https://api.example.com/v1
 ```
 
-不要填写 `http://`，也不要在末尾添加 `/`。
 
 ### 找不到模块，例如 `No module named 'openai'`
 

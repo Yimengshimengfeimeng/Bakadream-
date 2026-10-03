@@ -1,4 +1,5 @@
 from pathlib import Path
+from urllib.parse import urlparse
 from functools import lru_cache
 from pydantic import field_validator
 from pydantic_settings import BaseSettings,SettingsConfigDict
@@ -39,37 +40,25 @@ class Settings(BaseSettings):
         base_url = self.llm_base_url.strip()
         if not base_url:
             return "未设置供应商网址"
-        return base_url[8:-3]
+        return urlparse(base_url).hostname
     def require_llm_config(self) -> str:
+        problems=[]
         key = self.llm_api_key.strip()
         base_url = self.llm_base_url.strip()
         model = self.llm_model.strip()
         if not key :
-            raise RuntimeError(
-                "LLM_API_KEY 未配置。\n"
-                f"  1) 复制模板：Copy-Item .env.example .env   （在 {PROJECT_ROOT}）\n"
-                "  2) 打开 .env 填入 LLM_API_KEY / LLM_BASE_URL / LLM_MODEL"
-            )
+            problems.append("LLM_API_KEY 未配置。\n")
         if not base_url :
-            raise RuntimeError(
-                "LLM_BASE_URL 未配置。\n"
-                f"  1) 复制模板：Copy-Item .env.example .env   （在 {PROJECT_ROOT}）\n"
-                "  2) 打开 .env 填入 LLM_API_KEY / LLM_BASE_URL / LLM_MODEL"
-            )
-        if base_url[:8] != "https://":
-            raise RuntimeError(
-                "LLM_BASE_URL 格式错误。\n"
-                f"  1) 复制模板：Copy-Item .env.example .env   （在 {PROJECT_ROOT}）\n"
-                "  2) 打开 .env 填入 LLM_API_KEY / LLM_BASE_URL / LLM_MODEL"
-            )
+            problems.append("LLM_BASE_URL 未配置。\n")
+        elif not base_url.startswith(("https://", "http://")):
+            problems.append("LLM_BASE_URL 格式错误。\n")
         if not model : 
+            problems.append("LLM_MODEL 未配置。\n")
+        if problems:
             raise RuntimeError(
-                "LLM_MODEL 未配置。\n"
-                f"  1) 复制模板：Copy-Item .env.example .env   （在 {PROJECT_ROOT}）\n"
-                "  2) 打开 .env 填入 LLM_API_KEY / LLM_BASE_URL / LLM_MODEL"
+                "配置项缺失或格式错误：\n" + "".join(problems)
             )
         return key
-
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
     return Settings()
